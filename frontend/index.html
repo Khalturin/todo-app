@@ -1,0 +1,77 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>My TODO App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+    input, button { padding: 0.5rem; margin: 0.5rem 0; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.5rem; background: #f5f5f5; margin: 0.25rem 0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Мои задачи</h1>
+
+  <form id="taskForm">
+    <input type="text" id="title" placeholder="Название задачи" required>
+    <input type="text" id="category" placeholder="Категория (опционально)">
+    <textarea id="notes" placeholder="Заметки (опционально)"></textarea><br>
+    <button type="submit">Добавить задачу</button>
+  </form>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    const taskList = document.getElementById('taskList');
+    const taskForm = document.getElementById('taskForm');
+
+    // Загрузка задач при старте
+    async function loadTasks() {
+      try {
+        const res = await fetch('/api/tasks');
+        const tasks = await res.json();
+        taskList.innerHTML = '';
+        tasks.forEach(task => {
+          const li = document.createElement('li');
+          li.textContent = `[${task.category || '—'}] ${task.title} ${task.notes ? ' — ' + task.notes : ''}`;
+          taskList.appendChild(li);
+        });
+      } catch (err) {
+        console.error('Ошибка загрузки задач:', err);
+      }
+    }
+
+    // Отправка новой задачи
+    taskForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const category = document.getElementById('category').value.trim() || '';
+      const notes = document.getElementById('notes').value.trim() || '';
+
+      if (!title) return;
+
+      try {
+        const res = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, category, notes, completed: false })
+        });
+        if (res.ok) {
+          taskForm.reset();
+          loadTasks(); // обновить список
+        } else {
+          alert('Не удалось создать задачу');
+        }
+      } catch (err) {
+        console.error('Ошибка создания задачи:', err);
+        alert('Ошибка сети');
+      }
+    });
+
+    // Загрузить задачи при открытии страницы
+    loadTasks();
+  </script>
+</body>
+</html>
