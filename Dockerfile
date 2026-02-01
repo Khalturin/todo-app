@@ -17,7 +17,7 @@ WORKDIR /root/
 COPY --from=builder /app/todo-backend .
 COPY --from=builder /app/frontend ./frontend
 
-RUN mkdir -p /root/data
+RUN mkdir -p /app/data
 
 EXPOSE 8080
 

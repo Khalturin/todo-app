@@ -21,7 +21,7 @@ func InitDB() {
 	}
 
 	var err error
-	DB, err = sql.Open("sqlite3", "./data/todo.db")
+	DB, err = sql.Open("sqlite3", "/app/data/todo.db")
 	if err != nil {
 		log.Fatal("Не удалось открыть БД:", err)
 	}
